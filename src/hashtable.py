@@ -13,6 +13,7 @@ class HashTable:
     that accepts string keys
     '''
     def __init__(self, capacity):
+        self.count = 0
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
 
@@ -32,7 +33,7 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+
 
 
     def _hash_mod(self, key):
@@ -51,8 +52,24 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        keyHash = self._hash_mod(key)
 
+        if self.storage[keyHash] is not None:
+            previous_node = None
+            current_node = self.storage[keyHash]
+            while current_node is not None:
+                if current_node.key == key:
+                    current_node.value = value
+                    return
+                previous_node = current_node
+                current_node = current_node.next
+            previous_node.next = LinkedPair(key, value)
+
+        else:
+            if self.count >= self.capacity:
+                self.resize()
+            self.storage[keyHash] = LinkedPair(key, value)
+            self.count += 1
 
 
     def remove(self, key):
@@ -63,7 +80,21 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        keyHash = self._hash_mod(key)
+        if self.storage[keyHash] is None:
+            print('Key not found')
+            return
+        previous_node = None
+        current_node = self.storage[keyHash]
+        while current_node is not None:
+            if key == current_node.key:
+                if previous_node is None:
+                    self.storage[keyHash] = None
+                    return
+                previous_node.next = current_node.next
+                return
+            previous_node = current_node
+            current_node = current_node.next
 
 
     def retrieve(self, key):
@@ -74,7 +105,14 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        keyHash = self._hash_mod(key)
+        if self.storage[keyHash] is not None and self.storage[keyHash].key != key:
+            current_node = self.storage[keyHash]
+            while current_node is not None:
+                if current_node.key == key:
+                    return current_node.value
+                current_node = current_node.next
+        return self.storage[keyHash].value if self.storage[keyHash] is not None else None
 
 
     def resize(self):
@@ -84,7 +122,14 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        self.capacity *= 2
+        new_storage = self.storage
+        self.storage = [None] * self.capacity
+        for node in new_storage:
+            current_node = node
+            while current_node is not None:
+                self.insert(current_node.key, current_node.value)
+                current_node = current_node.next
 
 
 
