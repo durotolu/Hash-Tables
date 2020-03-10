@@ -33,7 +33,11 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-
+        # set hash value as arbitrary large prime number
+        hash_value = 5381
+        for char in key:
+            hash_value = ((hash_value << 5) + hash_value) + char
+        return hash_value
 
 
     def _hash_mod(self, key):
