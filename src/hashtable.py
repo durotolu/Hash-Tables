@@ -70,7 +70,7 @@ class HashTable:
             previous_node.next = LinkedPair(key, value)
 
         else:
-            if self.count >= self.capacity:
+            if self.count / self.capacity > 0.7:
                 self.resize()
             self.storage[keyHash] = LinkedPair(key, value)
             self.count += 1
@@ -93,7 +93,11 @@ class HashTable:
         while current_node is not None:
             if key == current_node.key:
                 if previous_node is None:
-                    self.storage[keyHash] = None
+                    self.storage[keyHash] = current_node.next if current_node.next is not None else None
+                    if current_node.next is None:
+                        self.count -= 1
+                        if self.count / self.capacity < 0.2:
+                            self.shrink()
                     return
                 previous_node.next = current_node.next
                 return
@@ -127,6 +131,16 @@ class HashTable:
         Fill this in.
         '''
         self.capacity *= 2
+        new_storage = self.storage
+        self.storage = [None] * self.capacity
+        for node in new_storage:
+            current_node = node
+            while current_node is not None:
+                self.insert(current_node.key, current_node.value)
+                current_node = current_node.next
+
+    def shrink(self):
+        self.capacity /= 2
         new_storage = self.storage
         self.storage = [None] * self.capacity
         for node in new_storage:
